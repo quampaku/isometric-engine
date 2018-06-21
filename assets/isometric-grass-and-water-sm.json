@@ -1,0 +1,150 @@
+{ "height":10,
+ "layers":[
+        {
+         "data":[4, 3, 2, 2, 2, 3, 4, 1, 1, 3, 3, 2, 3, 4, 3, 1, 3, 2, 3, 1, 1, 2, 3, 3, 3, 3, 2, 2, 3, 1, 3, 1, 1, 3, 4, 2, 3, 2, 1, 2, 3, 1, 4, 2, 1, 2, 1, 1, 3, 4, 3, 1, 3, 2, 3, 4, 2, 1, 5, 17, 1, 2, 4, 1, 4, 2, 5, 13, 9, 24, 3, 4, 3, 4, 1, 1, 16, 23, 23, 23, 2, 3, 3, 1, 2, 5, 9, 24, 24, 23, 2, 2, 3, 1, 2, 16, 23, 24, 24, 4],
+         "height":10,
+         "name":"Tile Layer 1",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":10,
+         "x":0,
+         "y":0
+        }],
+ "nextobjectid":1,
+ "orientation":"isometric",
+ "renderorder":"right-down",
+ "tiledversion":"2017.07.26",
+ "tileheight":32,
+ "tilesets":[
+        {
+         "columns":4,
+         "firstgid":1,
+         "image":"isometric-grass-and-water.png",
+         "imageheight":384,
+         "imagewidth":256,
+         "margin":0,
+         "name":"isometric_grass_and_water",
+         "spacing":0,
+         "terrains":[
+                {
+                 "name":"Grass",
+                 "tile":0
+                }, 
+                {
+                 "name":"Water",
+                 "tile":22
+                }],
+         "tilecount":24,
+         "tileheight":64,
+         "tileoffset":
+            {
+             "x":0,
+             "y":16
+            },
+         "tiles":
+            {
+             "0":
+                {
+                 "terrain":[0, 0, 0, 0]
+                },
+             "1":
+                {
+                 "terrain":[0, 0, 0, 0]
+                },
+             "10":
+                {
+                 "terrain":[1, 1, 1, 0]
+                },
+             "11":
+                {
+                 "terrain":[1, 1, 0, 1]
+                },
+             "12":
+                {
+                 "terrain":[0, 0, 1, 1]
+                },
+             "13":
+                {
+                 "terrain":[1, 0, 1, 0]
+                },
+             "14":
+                {
+                 "terrain":[1, 1, 0, 0]
+                },
+             "15":
+                {
+                 "terrain":[0, 1, 0, 1]
+                },
+             "16":
+                {
+                 "terrain":[0, 0, 1, 1]
+                },
+             "17":
+                {
+                 "terrain":[1, 0, 1, 0]
+                },
+             "18":
+                {
+                 "terrain":[1, 1, 0, 0]
+                },
+             "19":
+                {
+                 "terrain":[0, 1, 0, 1]
+                },
+             "2":
+                {
+                 "terrain":[0, 0, 0, 0]
+                },
+             "20":
+                {
+                 "terrain":[0, 1, 1, 0]
+                },
+             "21":
+                {
+                 "terrain":[1, 0, 0, 1]
+                },
+             "22":
+                {
+                 "terrain":[1, 1, 1, 1]
+                },
+             "23":
+                {
+                 "terrain":[1, 1, 1, 1]
+                },
+             "3":
+                {
+                 "terrain":[0, 0, 0, 0]
+                },
+             "4":
+                {
+                 "terrain":[0, 0, 0, 1]
+                },
+             "5":
+                {
+                 "terrain":[0, 0, 1, 0]
+                },
+             "6":
+                {
+                 "terrain":[1, 0, 0, 0]
+                },
+             "7":
+                {
+                 "terrain":[0, 1, 0, 0]
+                },
+             "8":
+                {
+                 "terrain":[0, 1, 1, 1]
+                },
+             "9":
+                {
+                 "terrain":[1, 0, 1, 1]
+                }
+            },
+         "tilewidth":64
+        }],
+ "tilewidth":64,
+ "type":"map",
+ "version":1,
+ "width":10
+}
