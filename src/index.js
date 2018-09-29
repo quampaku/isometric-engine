@@ -11,6 +11,7 @@ class MainScene extends Phaser.Scene {
         this.tileHeigthHalf = null;
         this.scene = this;
         this.skeletons = [];
+        this.socket = io.connect('http://localhost:5000');
 
         this.directions = {
             1: { offset: 160, x: 2, y: 1,name: 'southEast', opposite: 'northWest' },
@@ -73,7 +74,7 @@ class MainScene extends Phaser.Scene {
         });
 
 
-        // this.listener();
+        this.listener();
         //this.skeletons.push(this.add.existing(new Skeleton(this, 460, 180, 'walk', 'southWest', 1000)));
     }
 
@@ -173,40 +174,39 @@ class MainScene extends Phaser.Scene {
     }
 
     listener() {
-        let socket = io(); // This triggers the 'connection' event on the server
-        socket.emit('new-player',{x:player.sprite.x,y:player.sprite.y,angle:player.sprite.rotation,type:1});
+        this.socket.emit('new-player',{x:this.char.sprite.x,y:this.char.sprite.y,angle:this.char.sprite.rotation,type:1});
         // Listen for other players connecting
-        socket.on('update-players',function(players_data) {
-            var players_found = {};
-            // Loop over all the player data received
-            for(var id in players_data){
-                // If the player hasn't been created yet
-                if(other_players[id] == undefined && id != socket.id){ // Make sure you don't create yourself
-                    var data = players_data[id];
-                    var p = CreateShip(data.type,data.x,data.y,data.angle);
-                    other_players[id] = p;
-                    console.log("Created new player at (" + data.x + ", " + data.y + ")");
-                }
-                players_found[id] = true;
-
-                // Update positions of other players
-                if(id != socket.id){
-                    other_players[id].target_x  = players_data[id].x; // Update target, not actual position, so we can interpolate
-                    other_players[id].target_y  = players_data[id].y;
-                    other_players[id].target_rotation  = players_data[id].angle;
-                }
-
-
-            }
-            // Check if a player is missing and delete them
-            for(var id in other_players){
-                if(!players_found[id]){
-                    other_players[id].destroy();
-                    delete other_players[id];
-                }
-            }
-
-        })
+        // socket.on('update-players',function(players_data) {
+        //     var players_found = {};
+        //     // Loop over all the player data received
+        //     for(var id in players_data){
+        //         // If the player hasn't been created yet
+        //         if(other_players[id] == undefined && id != socket.id){ // Make sure you don't create yourself
+        //             var data = players_data[id];
+        //             var p = CreateShip(data.type,data.x,data.y,data.angle);
+        //             other_players[id] = p;
+        //             console.log("Created new player at (" + data.x + ", " + data.y + ")");
+        //         }
+        //         players_found[id] = true;
+        //
+        //         // Update positions of other players
+        //         if(id != socket.id){
+        //             other_players[id].target_x  = players_data[id].x; // Update target, not actual position, so we can interpolate
+        //             other_players[id].target_y  = players_data[id].y;
+        //             other_players[id].target_rotation  = players_data[id].angle;
+        //         }
+        //
+        //
+        //     }
+        //     // Check if a player is missing and delete them
+        //     for(var id in other_players){
+        //         if(!players_found[id]){
+        //             other_players[id].destroy();
+        //             delete other_players[id];
+        //         }
+        //     }
+        //
+        // })
     }
 }
 

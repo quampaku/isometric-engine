@@ -177,6 +177,11 @@ export default class Character
                 this.tempx = ex;
                 this.tempz = ez;
             }
+            this.scene.socket.emit('move-player', {
+                x: this.tempx,
+                z: this.tempz,
+                y: this.tempy
+            })
         }
     }
 
