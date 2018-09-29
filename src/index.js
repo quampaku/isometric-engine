@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
+import io from 'socket.io-client';
 import Isometric from './isometric';
 import AStar from './astar';
+import Character from './character';
 
 class MainScene extends Phaser.Scene {
     constructor () {
@@ -19,34 +21,6 @@ class MainScene extends Phaser.Scene {
             6: { offset: 0, x: -2, y: 0, name: 'west', opposite: 'east' },
             7: { offset: 224, x: -2, y: 1, name: 'southWest', opposite: 'northEast' },
             8: { offset: 192, x: 2, y: -1, name: 'south', opposite: 'north' },
-        };
-
-        this.animations = {
-            idle: {
-                startFrame: 0,
-                endFrame: 4,
-                speed: 0.2
-            },
-            walk: {
-                startFrame: 4,
-                endFrame: 12,
-                speed: 0.09
-            },
-            attack: {
-                startFrame: 12,
-                endFrame: 20,
-                speed: 0.11
-            },
-            die: {
-                startFrame: 20,
-                endFrame: 28,
-                speed: 0.2
-            },
-            shoot: {
-                startFrame: 28,
-                endFrame: 32,
-                speed: 0.1
-            }
         };
 
         this.world = {
@@ -70,8 +44,6 @@ class MainScene extends Phaser.Scene {
 
         this.astar = null;
 
-        this.animationEvent = null;
-
     }
 
     preload () {
@@ -93,55 +65,15 @@ class MainScene extends Phaser.Scene {
 
         this.astar = new AStar();
 
-        this.input.on('pointerdown', function (pointer) {
-            let x, y;
-            x = pointer.x - 350;
-            y = pointer.y - 220;
-            //y = pointer.y - 217;
-            //console.log('screen x = ' + x + ' y = ' +y);
-            let temp = self.iso.mapToIsoWorld(x, y);
-            let xm = temp[0];
-            let zm = temp[1];
-            let checkZone = 0;
-            //console.log('iso xm = ' + xm + ' zm = ' +zm);
-            let x_tile = Math.ceil((xm + checkZone)/self.world.cellWidth);
-            let z_tile = Math.ceil(Math.abs(zm + checkZone)/self.world.cellWidth);
-            //console.log(self.world.length);
-            if (xm>=0 && xm <= self.world.width && zm >= self.world.length && zm<=0 ) {
-                console.log('x_tile = ' + x_tile + ' z_tile = ' + z_tile);
-            }
+        this.buildFloor();
+        this.char = new Character(this);
 
-            if (/*!self.world.char.moving &&*/ xm>=0 && xm <= self.world.width && zm >= self.world.length && zm<=0 ) {
-                let x = self.world.char.x;
-                let z = self.world.char.z;
-                self.world.char.startx = x;
-                self.world.char.startz = z;
-                self.world.char.endx = xm;
-                self.world.char.endz = zm;
-                let angleSpan = 360/8;
-                let angle = Math.atan2(zm-z, xm-x);
-                let realAngle = angle*180/Math.PI;
-                realAngle += angleSpan/2;
-                if (realAngle<0) {
-                    realAngle += 360;
-                }
-                self.world.char.direction = self.directions[Math.ceil(realAngle/angleSpan)];
-                self.setAnimation('walk');
-                self.world.char.moving = true;
-                let cosAngle = Math.cos(angle);
-                let sinAngle = Math.sin(angle);
-                self.world.char.xmov = self.world.char.speed*cosAngle;
-                self.world.char.zmov = self.world.char.speed*sinAngle;
-                console.log('speed name = ' +self.world.char.direction.name);
-                console.log('speed x = ' +self.world.char.xmov);
-                console.log('speed z = ' +self.world.char.zmov);
-                self.world.char.feelerx = self.world.char.feeler*cosAngle;
-                self.world.char.feelerz = self.world.char.feeler*sinAngle;
-            }
+        this.input.on('pointerdown', function (pointer) {
+            self.char.moveToPointer(pointer);
         });
 
-        this.buildFloor();
-        this.buildCharacter();
+
+        // this.listener();
         //this.skeletons.push(this.add.existing(new Skeleton(this, 460, 180, 'walk', 'southWest', 1000)));
     }
 
@@ -162,10 +94,10 @@ class MainScene extends Phaser.Scene {
             skeleton.update();
         });
 
-        if (this.world.char.moving) {
-            this.moveCharacter();
-            this.detectObjects();
-            this.positionCharacter();
+        if (this.char.moving) {
+            this.char.moveCharacter();
+            // this.char.detectObjects();
+            this.char.positionCharacter();
         }
 
         //this.walk();
@@ -217,129 +149,6 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    changeFrame () {
-        // console.log('f = ' + this.world.char.f);
-        this.world.char.f++;
-        //console.log(this.world.char.motion);
-        let delay = this.world.char.anim.speed;
-
-        if (this.world.char.f === this.world.char.anim.endFrame) {
-            switch (this.world.char.motion) {
-                case 'walk':
-                    this.world.char.f = this.world.char.anim.startFrame;
-                    this.world.char.sprite.frame = this.world.char.sprite.texture.get(this.world.char.direction.offset + this.world.char.f);
-                    this.animationEvent = this.time.delayedCall(delay * 1000, this.changeFrame, [], this);
-                    break;
-                case 'attack':
-                    delay = Math.random() * 2;
-                    this.animationEvent = this.time.delayedCall(delay * 1000, this.resetAnimation, [], this);
-                    break;
-
-                case 'idle':
-                    delay = 0.5 + Math.random();
-                    this.animationEvent = this.time.delayedCall(delay * 1000, this.resetAnimation, [], this);
-                    break;
-
-                case 'die':
-                    delay = 6 + Math.random() * 6;
-                    this.animationEvent = this.time.delayedCall(delay * 1000, this.resetAnimation, [], this);
-                    break;
-            }
-        }
-        else {
-            this.world.char.sprite.frame = this.world.char.sprite.texture.get(this.world.char.direction.offset + this.world.char.f);
-            this.animationEvent = this.time.delayedCall(delay * 1000, this.changeFrame, [], this);
-        }
-    }
-
-    resetAnimation () {
-        this.world.char.f = this.world.char.anim.startFrame;
-        this.world.char.sprite.frame = this.world.char.sprite.texture.get(this.world.char.direction.offset + this.world.char.f);
-
-        this.animationEvent = this.time.delayedCall(this.world.char.anim.speed * 1000, this.changeFrame, [], this);
-    }
-
-    stopAnimation () {
-        if(this.animationEvent) {
-            this.animationEvent.remove(false);
-        }
-    }
-
-    setAnimation(val) {
-        this.stopAnimation();
-        this.world.char.motion = val;
-        this.world.char.anim = this.animations[this.world.char.motion];
-        this.resetAnimation();
-    }
-
-    buildCharacter() {
-        this.world.char = {
-            tempx: 32,
-            tempy: 0,
-            tempz: -32,
-            speed: 1,
-            feeler: 10,
-            width: 10,
-            xmov: 0,
-            zmov:0,
-            ymov:0,
-            moving: false,
-            sprite: null,
-            direction: null,
-            motion: 'idle',
-            anim: null,
-            f: null
-        };
-        this.world.char.anim = this.animations[this.world.char.motion];
-        this.world.char.f = this.world.char.anim.startFrame;
-        this.world.char.direction = this.directions[8];
-        let char = this.add.image(0, 0, 'skeleton', 0).setOrigin(0.5, 1);
-        this.tiles.add(char);
-        this.world.char.sprite = char;
-        this.animationEvent = this.time.delayedCall(this.world.char.anim.speed * 1000, this.changeFrame, [], this);
-        this.positionCharacter();
-        /*let cell_x = Math.ceil(this.world.char.tempx / this.world.cellWidth);
-        let cell_z = Math.ceil(Math.abs(this.world.char.tempz) / this.world.cellWidth);
-        this.astar.s.x = cell_x;
-        this.astar.s.y = cell_z;*/
-    }
-
-    positionCharacter() {
-        this.world.char.x = this.world.char.tempx;
-        this.world.char.y = this.world.char.tempy;
-        this.world.char.z = this.world.char.tempz;
-        let temp = this.iso.mapToScreen(this.world.char.x, this.world.char.y, this.world.char.z);
-        let cell_x = Math.ceil(this.world.char.x / this.world.cellWidth);
-        let cell_z = Math.ceil(Math.abs(this.world.char.z) / this.world.cellWidth);
-        this.world.char.cell_x = cell_x;
-        this.world.char.cell_z = cell_z;
-        this.world.char.sprite.depth = this.iso.calculateDepth(cell_x, 0, cell_z) + 1;
-        this.world.char.sprite.x = temp[0];
-        this.world.char.sprite.y = temp[1] + 50;
-    }
-
-    moveCharacter() {
-        if (this.world.char.moving) {
-            this.world.char.tempx = this.world.char.x+this.world.char.xmov;
-            this.world.char.tempz = this.world.char.z+this.world.char.zmov;
-            this.world.char.tempy = this.world.char.y+this.world.char.ymov;
-            let sx = this.world.char.startx;
-            let sz = this.world.char.startz;
-            let ex = this.world.char.endx;
-            let ez = this.world.char.endz;
-            let tempx = this.world.char.tempx;
-            let tempz = this.world.char.tempz;
-            if ((ex-sx)/Math.abs(ex-sx) != (ex-tempx)/Math.abs(ex-tempx) || (ez-sz)/Math.abs(ez-sz) != (ez-tempz)/Math.abs(ez-tempz)) {
-                this.setAnimation('idle');
-                this.world.char.moving = false;
-                this.world.char.xmov = 0;
-                this.world.char.zmov = 0;
-                this.world.char.tempx = ex;
-                this.world.char.tempz = ez;
-            }
-        }
-    }
-
     detectObjects() {
         //Extend a little in the direction of motion
         let x = this.world.char.tempx+this.world.char.feelerx;
@@ -363,8 +172,44 @@ class MainScene extends Phaser.Scene {
         }
     }
 
+    listener() {
+        let socket = io(); // This triggers the 'connection' event on the server
+        socket.emit('new-player',{x:player.sprite.x,y:player.sprite.y,angle:player.sprite.rotation,type:1});
+        // Listen for other players connecting
+        socket.on('update-players',function(players_data) {
+            var players_found = {};
+            // Loop over all the player data received
+            for(var id in players_data){
+                // If the player hasn't been created yet
+                if(other_players[id] == undefined && id != socket.id){ // Make sure you don't create yourself
+                    var data = players_data[id];
+                    var p = CreateShip(data.type,data.x,data.y,data.angle);
+                    other_players[id] = p;
+                    console.log("Created new player at (" + data.x + ", " + data.y + ")");
+                }
+                players_found[id] = true;
 
+                // Update positions of other players
+                if(id != socket.id){
+                    other_players[id].target_x  = players_data[id].x; // Update target, not actual position, so we can interpolate
+                    other_players[id].target_y  = players_data[id].y;
+                    other_players[id].target_rotation  = players_data[id].angle;
+                }
+
+
+            }
+            // Check if a player is missing and delete them
+            for(var id in other_players){
+                if(!players_found[id]){
+                    other_players[id].destroy();
+                    delete other_players[id];
+                }
+            }
+
+        })
+    }
 }
+
 
 let config = {
     type: Phaser.AUTO,
