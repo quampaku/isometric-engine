@@ -72,6 +72,9 @@ class MainScene extends Phaser.Scene {
 
         this.animationEvent = null;
 
+        this.containerX = null;
+        this.containerY = null;
+
     }
 
     preload () {
@@ -82,23 +85,21 @@ class MainScene extends Phaser.Scene {
 
     create () {
         let self = this;
-
-        this.keyUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
-        this.keyDown = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
-        this.keyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-        this.keyRight = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-
-        this.tiles = this.add.container(350,200);
-        this.tiles.setInteractive();
-
+        let map = this.cache.json.get('map');
+        let mapWidth = map.layers[0].width;
+        let tileWidth = map.tilewidth;
+        this.containerX = mapWidth*tileWidth/2;
+        this.containerY = 128;
+        //this.tiles = this.add.container(containerX,containerY);
+        //this.tiles.setInteractive();
         this.astar = new AStar();
 
         this.input.on('pointerdown', function (pointer) {
             let x, y;
-            x = pointer.x - 350;
-            y = pointer.y - 220;
-            //y = pointer.y - 217;
-            //console.log('screen x = ' + x + ' y = ' +y);
+            x = pointer.x - self.containerX;
+            // y = pointer.y - self.containerY;
+            y = pointer.y - (self.containerY + 32);
+            console.log('screen x = ' + x + ' y = ' +y);
             let temp = self.iso.mapToIsoWorld(x, y);
             let xm = temp[0];
             let zm = temp[1];
@@ -107,11 +108,20 @@ class MainScene extends Phaser.Scene {
             let x_tile = Math.ceil((xm + checkZone)/self.world.cellWidth);
             let z_tile = Math.ceil(Math.abs(zm + checkZone)/self.world.cellWidth);
             //console.log(self.world.length);
-            if (xm>=0 && xm <= self.world.width && zm >= self.world.length && zm<=0 ) {
-                console.log('x_tile = ' + x_tile + ' z_tile = ' + z_tile);
-            }
+            console.log('xm = ' + xm + ' zm = ' + zm);
+            if (xm >= 0 && xm <= self.world.width
+                && zm >= self.world.length && zm <= 0) {
 
-            if (/*!self.world.char.moving &&*/ xm>=0 && xm <= self.world.width && zm >= self.world.length && zm<=0 ) {
+                /*let cellWidth = 64/1.414;
+                let x_iso_tile = x_tile * cellWidth;
+                let z_iso_tile = -z_tile * cellWidth;
+                let temp = self.iso.mapToScreen(x_iso_tile, 0, z_iso_tile);
+                console.log('tile screen center x = ' + temp[0] + ' y = ' + temp[1]);
+                console.log('x_tile = ' + x_tile + ' z_tile = ' + z_tile);
+                temp = self.iso.mapToIsoWorld(temp[0], temp[1]);
+                xm = temp[0];
+                zm = temp[1];*/
+
                 let x = self.world.char.x;
                 let z = self.world.char.z;
                 self.world.char.startx = x;
@@ -132,9 +142,9 @@ class MainScene extends Phaser.Scene {
                 let sinAngle = Math.sin(angle);
                 self.world.char.xmov = self.world.char.speed*cosAngle;
                 self.world.char.zmov = self.world.char.speed*sinAngle;
-                console.log('speed name = ' +self.world.char.direction.name);
-                console.log('speed x = ' +self.world.char.xmov);
-                console.log('speed z = ' +self.world.char.zmov);
+                // console.log('speed name = ' +self.world.char.direction.name);
+                // console.log('speed x = ' +self.world.char.xmov);
+                // console.log('speed z = ' +self.world.char.zmov);
                 self.world.char.feelerx = self.world.char.feeler*cosAngle;
                 self.world.char.feelerz = self.world.char.feeler*sinAngle;
             }
@@ -146,18 +156,6 @@ class MainScene extends Phaser.Scene {
     }
 
     update () {
-        if (this.keyUp.isDown) {
-            this.dir = 'up';
-        } else if (this.keyDown.isDown) {
-            this.dir = 'down';
-        } else if (this.keyLeft.isDown) {
-            this.dir = 'left';
-        } else if (this.keyRight.isDown) {
-            this.dir = 'right';
-        } else {
-            this.dir = null;
-        }
-
         this.skeletons.forEach(function (skeleton) {
             skeleton.update();
         });
@@ -199,15 +197,15 @@ class MainScene extends Phaser.Scene {
         for(let j = 1; j <= mapHeight; j++) {
             for(let i = 1; i <= mapWidth; i++) {
                 let id = layer[k] - 1;
-                let x = (i-1) * this.world.cellWidth;
-                let z = -(j-1) * this.world.cellWidth;
+                let x = i * this.world.cellWidth;
+                let z = -j * this.world.cellWidth;
                 let depth = this.iso.calculateDepth(i, y, j);
                 let temp = this.iso.mapToScreen(x, y, z);
                 //console.log(temp);
-                let tile = this.add.image(temp[0], temp[1], 'tiles', id).setOrigin(0.5, 0);
+                let tile = this.add.image(temp[0]+this.containerX, temp[1]+this.containerY, 'tiles', id);
                 tile.depth = depth;
                 //tile.setInteractive();
-                this.tiles.add(tile);
+                //this.tiles.add(tile);
                 k++;
                 if(j === 1) {
                     this.world.tiles[i] = [];
@@ -274,9 +272,9 @@ class MainScene extends Phaser.Scene {
 
     buildCharacter() {
         this.world.char = {
-            tempx: 32,
+            tempx:0,
             tempy: 0,
-            tempz: -32,
+            tempz: -0,
             speed: 1,
             feeler: 10,
             width: 10,
@@ -293,8 +291,8 @@ class MainScene extends Phaser.Scene {
         this.world.char.anim = this.animations[this.world.char.motion];
         this.world.char.f = this.world.char.anim.startFrame;
         this.world.char.direction = this.directions[8];
-        let char = this.add.image(0, 0, 'skeleton', 0).setOrigin(0.5, 1);
-        this.tiles.add(char);
+        let char = this.add.image(0, 0, 'skeleton', 0);
+        //this.tiles.add(char);
         this.world.char.sprite = char;
         this.animationEvent = this.time.delayedCall(this.world.char.anim.speed * 1000, this.changeFrame, [], this);
         this.positionCharacter();
@@ -313,9 +311,9 @@ class MainScene extends Phaser.Scene {
         let cell_z = Math.ceil(Math.abs(this.world.char.z) / this.world.cellWidth);
         this.world.char.cell_x = cell_x;
         this.world.char.cell_z = cell_z;
-        this.world.char.sprite.depth = this.iso.calculateDepth(cell_x, 0, cell_z) + 1;
-        this.world.char.sprite.x = temp[0];
-        this.world.char.sprite.y = temp[1] + 50;
+        this.world.char.sprite.depth = this.iso.calculateDepth(cell_x + 1, 0, cell_z + 1) + 1;
+        this.world.char.sprite.x = temp[0]+this.containerX;
+        this.world.char.sprite.y = temp[1]+this.containerY;
     }
 
     moveCharacter() {
