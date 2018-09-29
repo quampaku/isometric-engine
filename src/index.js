@@ -111,7 +111,7 @@ class MainScene extends Phaser.Scene {
                 console.log('x_tile = ' + x_tile + ' z_tile = ' + z_tile);
             }
 
-            if (!self.world.char.moving && xm>=0 && xm <= self.world.width && zm >= self.world.length && zm<=0 ) {
+            if (/*!self.world.char.moving &&*/ xm>=0 && xm <= self.world.width && zm >= self.world.length && zm<=0 ) {
                 let x = self.world.char.x;
                 let z = self.world.char.z;
                 self.world.char.startx = x;
@@ -127,8 +127,6 @@ class MainScene extends Phaser.Scene {
                 }
                 self.world.char.direction = self.directions[Math.ceil(realAngle/angleSpan)];
                 self.setAnimation('walk');
-                //this.world.char.clip.gotoAndStop("walk"+frame);
-                //this.world.char.frame = frame;
                 self.world.char.moving = true;
                 let cosAngle = Math.cos(angle);
                 let sinAngle = Math.sin(angle);
@@ -219,8 +217,7 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    changeFrame ()
-    {
+    changeFrame () {
         // console.log('f = ' + this.world.char.f);
         this.world.char.f++;
         //console.log(this.world.char.motion);
@@ -255,8 +252,7 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    resetAnimation ()
-    {
+    resetAnimation () {
         this.world.char.f = this.world.char.anim.startFrame;
         this.world.char.sprite.frame = this.world.char.sprite.texture.get(this.world.char.direction.offset + this.world.char.f);
 
@@ -281,7 +277,7 @@ class MainScene extends Phaser.Scene {
             tempx: 32,
             tempy: 0,
             tempz: -32,
-            speed: 1.5,
+            speed: 1,
             feeler: 10,
             width: 10,
             xmov: 0,
@@ -340,7 +336,6 @@ class MainScene extends Phaser.Scene {
                 this.world.char.zmov = 0;
                 this.world.char.tempx = ex;
                 this.world.char.tempz = ez;
-                //this.world.char.clip.gotoAndStop("stand"+world.char.frame);
             }
         }
     }
@@ -365,8 +360,6 @@ class MainScene extends Phaser.Scene {
             this.world.char.xmov = 0;
             this.world.char.ymov = 0;
             this.world.char.moving = false;
-            //var frame = world.char.frame;
-            //world.char.clip.gotoAndStop("stand"+frame);
         }
     }
 
