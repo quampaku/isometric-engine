@@ -3,11 +3,12 @@ import Phaser from "phaser";
 export default class Character
 {
 
-    constructor (scene)
+    constructor (scene, id)
     {
         this.scene = scene;
         this.world = scene.world;
 
+        this.id = id;
         this.tempx = 32;
         this.tempy =  0;
         this.tempz = 32;

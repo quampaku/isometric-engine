@@ -22,9 +22,9 @@ io.on('connection', function(socket) {
     // Listen for a new player trying to connect
     socket.on('new-player',function(state){
         console.log("New player joined with state:",state);
-        players[socket.id] = state;
+        // players[socket.id] = state;
         // Broadcast a signal to everyone containing the updated players list
-        io.emit('update-players',players);
+        io.emit('connect-player',socket.id);
     });
 
     // Listen for a disconnection and update our player table
@@ -35,14 +35,21 @@ io.on('connection', function(socket) {
 
     // Listen for move events and tell all other clients that something has moved
     socket.on('move-player',function(position_data){
-        console.log('player move to coords {x: ' + position_data.x +'; z: '+ position_data.z +'; y: '+ position_data.y + '}' );
+        // console.log('player move to coords {x: ' + position_data.x +'; z: '+ position_data.z +'; y: '+ position_data.y + '}' );
         if(players[socket.id] == undefined) return; // Happens if the server restarts and a client is still connected
         players[socket.id].x = position_data.x;
         players[socket.id].y = position_data.y;
         players[socket.id].z = position_data.z;
         io.emit('update-players',players);
-    })
-
+    });
+    socket.on('move-to',function(data){
+        console.log('игрок '+ socket.id+' побежал на точку ' + data.x);
+        io.emit('move-player',{
+            id: socket.id,
+            x: data.x,
+            y: data.y
+        });
+    });
 });
 
 // Update the bullets 60 times per frame and send updates

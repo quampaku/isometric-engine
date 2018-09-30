@@ -67,9 +67,12 @@ class MainScene extends Phaser.Scene {
         this.astar = new AStar();
 
         this.buildFloor();
-        this.char = new Character(this);
+        this.char = new Character(this, this.socket.id);
 
         this.input.on('pointerdown', function (pointer) {
+            self.socket.emit('move-to', {x: pointer.x, y: pointer.y});
+            // self.socket.emit('move-to', {pointer:pointer});
+            // console.log(2);
             self.char.moveToPointer(pointer);
         });
 
@@ -92,7 +95,8 @@ class MainScene extends Phaser.Scene {
         }
 
         this.skeletons.forEach(function (skeleton) {
-            skeleton.update();
+            skeleton.moveCharacter();
+            skeleton.positionCharacter();
         });
 
         if (this.char.moving) {
@@ -174,7 +178,29 @@ class MainScene extends Phaser.Scene {
     }
 
     listener() {
+        let self = this;
         this.socket.emit('new-player',{x:this.char.sprite.x,y:this.char.sprite.y,angle:this.char.sprite.rotation,type:1});
+
+        this.socket.on('connect-player',function(id) {
+            if(id === self.socket.id) {
+                return false;
+            }
+            self.skeletons.push(new Character(self, id));
+        });
+        this.socket.on('disconnect-player',function(players_data) {
+
+        });
+        this.socket.on('update-players',function(players_data) {
+
+        });
+
+        this.socket.on('move-player',function(data) {
+            if(data.id === self.char.id) {
+                return false;
+            }
+            let char = self.findCharacter(data.id);
+            char.moveToPointer(data);
+        });
         // Listen for other players connecting
         // socket.on('update-players',function(players_data) {
         //     var players_found = {};
@@ -207,6 +233,20 @@ class MainScene extends Phaser.Scene {
         //     }
         //
         // })
+    }
+
+    findCharacter(id) {
+
+        console.log(id);
+        console.log(this.skeletons);
+        for(let i = 0; i < this.skeletons.length ; i++){
+            console.log(this.skeletons[i]);
+            console.log(this.skeletons[i].id);
+            if(this.skeletons[i].id === id) {
+                return this.skeletons[i];
+            }
+        }
+        return null;
     }
 }
 
