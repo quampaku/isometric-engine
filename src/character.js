@@ -131,10 +131,6 @@ export default class Character
         this.direction = this.directions[8];
         this.sprite = this.scene.add.image(0, 0, 'skeleton', 0).setOrigin(0.5, 1);
         this.scene.tiles.add(this.sprite);
-        this.sprite.update = function()
-        {
-            console.log('d');
-        };
         this.animationEvent = this.scene.time.delayedCall(this.anim.speed * 1000, this.changeFrame, [], this);
         this.positionCharacter();
         /*let cell_x = Math.ceil(this.tempx / this.world.cellWidth);
@@ -178,11 +174,11 @@ export default class Character
                 this.tempx = ex;
                 this.tempz = ez;
             }
-            this.scene.socket.emit('move-player', {
-                x: this.tempx,
-                z: this.tempz,
-                y: this.tempy
-            })
+            // this.scene.socket.emit('move-player', {
+            //     x: this.tempx,
+            //     z: this.tempz,
+            //     y: this.tempy
+            // })
         }
     }
 
@@ -231,6 +227,47 @@ export default class Character
             console.log('speed z = ' +this.zmov);
             this.feelerx = this.feeler*cosAngle;
             this.feelerz = this.feeler*sinAngle;
+        }
+    }
+
+    getState()
+    {
+        return {
+            moving: this.moving,
+            direction: this.direction,
+            x: this.x,
+            z: this.z,
+            y: this.y,
+            xmov: this.xmov,
+            zmov: this.zmov,
+            feelerx: this.feelerx,
+            feelerz: this.feelerz,
+            motion: this.motion,
+            anim: this.anim
+        }
+    }
+
+    setState(state)
+    {
+        this.moving = state.moving;
+        this.direction = state.direction;
+        this.x = state.x;
+        this.z = state.z;
+        this.y = state.y;
+        this.xmov = state.xmov;
+        this.zmov = state.zmov;
+        this.feelerx = state.feelerx;
+        this.feelerz = state.feelerz;
+        this.motion = state.motion;
+        this.anim = state.anim;
+    }
+
+    update()
+    {
+        console.log('id '+ this.id);
+        if(this.moving) {
+            this.moveCharacter();
+            this.positionCharacter();
         }
     }
 }

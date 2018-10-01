@@ -10,7 +10,8 @@ class MainScene extends Phaser.Scene {
         this.tileWidthHalf = null;
         this.tileHeigthHalf = null;
         this.scene = this;
-        this.skeletons = [];
+        this.skeletons = {};
+        this.charsData = {};
         this.socket = io.connect('http://localhost:5000');
 
         this.directions = {
@@ -54,7 +55,6 @@ class MainScene extends Phaser.Scene {
     }
 
     create () {
-        let self = this;
 
         this.keyUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         this.keyDown = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
@@ -69,11 +69,12 @@ class MainScene extends Phaser.Scene {
         this.buildFloor();
         this.char = new Character(this, this.socket.id);
 
-        this.input.on('pointerdown', function (pointer) {
-            self.socket.emit('move-to', {x: pointer.x, y: pointer.y});
-            // self.socket.emit('move-to', {pointer:pointer});
+        this.input.on('pointerdown', (pointer) => {
+            // this.char.sprite.destroy();
+            // this.socket.emit('move-to', {x: pointer.x, y: pointer.y});
+            this.socket.emit('run-player', this.char.getState());
             // console.log(2);
-            self.char.moveToPointer(pointer);
+            this.char.moveToPointer(pointer);
         });
 
 
@@ -94,10 +95,15 @@ class MainScene extends Phaser.Scene {
             this.dir = null;
         }
 
-        this.skeletons.forEach(function (skeleton) {
-            skeleton.moveCharacter();
-            skeleton.positionCharacter();
-        });
+        for(let id in this.skeletons) {
+            // let state = this.charsData[id];
+            // if(state) {
+            //     console.log('хуй');
+            //     console.log(this.charsData);
+            //     this.skeletons[id].setState(state);
+            // }
+            this.skeletons[id].update();
+        }
 
         if (this.char.moving) {
             this.char.moveCharacter();
@@ -177,28 +183,46 @@ class MainScene extends Phaser.Scene {
         }
     }
 
+    // createChars()
+    // {
+    //     for(id in this.charsData) {
+    //         this.skeletons[id] = new Character(this, id);
+    //     }
+    // }
     listener() {
-        let self = this;
         this.socket.emit('new-player',{x:this.char.sprite.x,y:this.char.sprite.y,angle:this.char.sprite.rotation,type:1});
 
-        this.socket.on('connect-player',function(id) {
-            if(id === self.socket.id) {
+        this.socket.on('create-chars',(players_data) => {
+            this.charsData = players_data;
+            for(id in this.charsData) {
+                if(!this.charsData.hasOwnProperty(id)) {
+                    return false;
+                }
+                this.skeletons[id] = new Character(this, id);
+            }
+        });
+        this.socket.on('connect-player',(id) => {
+            if(id === this.char.id) {
                 return false;
             }
-            self.skeletons.push(new Character(self, id));
+            this.skeletons[id] = new Character(this, id);
         });
-        this.socket.on('disconnect-player',function(players_data) {
-
+        this.socket.on('disconnect-player',(id) => {
+            console.log(this.charsData);
+            delete this.charsData[id];
+            this.skeletons[id].sprite.destroy();
+            delete this.skeletons[id];
+            console.log(this.charsData);
         });
-        this.socket.on('update-players',function(players_data) {
-
+        this.socket.on('update-players',(players_data) => {
+            this.charsData = players_data;
         });
 
-        this.socket.on('move-player',function(data) {
-            if(data.id === self.char.id) {
+        this.socket.on('move-player',(data) => {
+            if(data.id === this.char.id) {
                 return false;
             }
-            let char = self.findCharacter(data.id);
+            let char = this.skeletons[data.id];
             char.moveToPointer(data);
         });
         // Listen for other players connecting
@@ -233,20 +257,6 @@ class MainScene extends Phaser.Scene {
         //     }
         //
         // })
-    }
-
-    findCharacter(id) {
-
-        console.log(id);
-        console.log(this.skeletons);
-        for(let i = 0; i < this.skeletons.length ; i++){
-            console.log(this.skeletons[i]);
-            console.log(this.skeletons[i].id);
-            if(this.skeletons[i].id === id) {
-                return this.skeletons[i];
-            }
-        }
-        return null;
     }
 }
 
