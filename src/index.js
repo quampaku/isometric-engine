@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import Isometric from './isometric';
 import AStar from './astar';
 import Character from './character';
+import Char from './char';
 
 class MainScene extends Phaser.Scene {
     constructor () {
@@ -46,16 +47,19 @@ class MainScene extends Phaser.Scene {
 
         this.astar = null;
 
+        this.data = null;
+
     }
 
     preload () {
         this.load.json('map', 'assets/isometric-grass-and-water-sm.json');
+        this.load.json('data', 'data/data.json');
         this.load.spritesheet('tiles', 'assets/isometric-grass-and-water.png', { frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('skeleton', 'assets/skeleton8.png', { frameWidth: 128, frameHeight: 128 });
     }
 
     create () {
-
+        this.data = this.cache.json.get('data');
         this.keyUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         this.keyDown = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         this.keyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
@@ -67,18 +71,19 @@ class MainScene extends Phaser.Scene {
         this.astar = new AStar();
 
         this.buildFloor();
-        this.char = new Character(this, this.socket.id);
-
-        this.input.on('pointerdown', (pointer) => {
-            // this.char.sprite.destroy();
-            // this.socket.emit('move-to', {x: pointer.x, y: pointer.y});
-            this.socket.emit('run-player', this.char.getState());
-            // console.log(2);
-            this.char.moveToPointer(pointer);
-        });
-
-
-        this.listener();
+        // this.char = new Character(this, this.socket.id);
+        this.char = new Char(this, this.socket.id);
+        //
+        // this.input.on('pointerdown', (pointer) => {
+        //     // this.char.sprite.destroy();
+        //     // this.socket.emit('move-to', {x: pointer.x, y: pointer.y});
+        //     this.socket.emit('run-player', this.char.getState());
+        //     // console.log(2);
+        //     this.char.moveToPointer(pointer);
+        // });
+        //
+        //
+        // this.listener();
         //this.skeletons.push(this.add.existing(new Skeleton(this, 460, 180, 'walk', 'southWest', 1000)));
     }
 
@@ -95,21 +100,21 @@ class MainScene extends Phaser.Scene {
             this.dir = null;
         }
 
-        for(let id in this.skeletons) {
-            // let state = this.charsData[id];
-            // if(state) {
-            //     console.log('хуй');
-            //     console.log(this.charsData);
-            //     this.skeletons[id].setState(state);
-            // }
-            this.skeletons[id].update();
-        }
-
-        if (this.char.moving) {
-            this.char.moveCharacter();
-            // this.char.detectObjects();
-            this.char.positionCharacter();
-        }
+        // for(let id in this.skeletons) {
+        //     // let state = this.charsData[id];
+        //     // if(state) {
+        //     //     console.log('хуй');
+        //     //     console.log(this.charsData);
+        //     //     this.skeletons[id].setState(state);
+        //     // }
+        //     this.skeletons[id].update();
+        // }
+        //
+        // if (this.char.moving) {
+        //     this.char.moveCharacter();
+        //     // this.char.detectObjects();
+        //     this.char.positionCharacter();
+        // }
 
         //this.walk();
     }

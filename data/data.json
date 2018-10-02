@@ -1,0 +1,96 @@
+{
+  "animations": {
+    "character": {
+      "idle": {
+        "startFrame": 0,
+        "endFrame": 4,
+        "speed": 0.2
+      },
+      "walk": {
+        "startFrame": 4,
+        "endFrame": 12,
+        "speed": 0.09
+      },
+      "attack": {
+        "startFrame": 12,
+        "endFrame": 20,
+        "speed": 0.11
+      },
+      "die": {
+        "startFrame": 20,
+        "endFrame": 28,
+        "speed": 0.2
+      },
+      "shoot": {
+        "startFrame": 28,
+        "endFrame": 32,
+        "speed": 0.1
+      }
+    }
+  },
+  "directions": {
+    "southEast": {
+      "mathLine": 1,
+      "offset": 160,
+      "x": 2,
+      "y": 1,
+      "name": "southEast",
+      "opposite": "northWest"
+    },
+    "east": {
+      "mathLine": 2,
+      "offset": 128,
+      "x": 2,
+      "y": 0,
+      "name": "east",
+      "opposite": "west"
+    },
+    "northEast": {
+      "mathLine": 3,
+      "offset": 96,
+      "x": 2, "y": -1,
+      "name": "northEast",
+      "opposite": "southWest"
+    },
+    "north": {
+      "mathLine": 4,
+      "offset": 64,
+      "x": -1,
+      "y": 2,
+      "name": "north",
+      "opposite": "south"
+    },
+    "northWest": {
+      "mathLine": 5,
+      "offset": 32,
+      "x": -2,
+      "y": -1,
+      "name": "northWest",
+      "opposite": "southEast"
+    },
+    "west": {
+      "mathLine": 6,
+      "offset": 0,
+      "x": -2,
+      "y": 0,
+      "name": "west",
+      "opposite": "east"
+    },
+    "southWest": {
+      "mathLine": 7,
+      "offset": 224,
+      "x": -2,
+      "y": 1,
+      "name": "southWest",
+      "opposite": "northEast" },
+    "south": {
+      "mathLine": 8,
+      "offset": 192,
+      "x": 2,
+      "y": -1,
+      "name": "south",
+      "opposite": "north"
+    }
+  }
+
+}

@@ -132,7 +132,7 @@ export default class Character
         this.sprite = this.scene.add.image(0, 0, 'skeleton', 0).setOrigin(0.5, 1);
         this.scene.tiles.add(this.sprite);
         this.animationEvent = this.scene.time.delayedCall(this.anim.speed * 1000, this.changeFrame, [], this);
-        this.positionCharacter();
+        // this.positionCharacter();
         /*let cell_x = Math.ceil(this.tempx / this.world.cellWidth);
         let cell_z = Math.ceil(Math.abs(this.tempz) / this.world.cellWidth);
         this.astar.s.x = cell_x;
@@ -141,6 +141,7 @@ export default class Character
 
     positionCharacter()
     {
+        console.log('двигаем позицию персонажа ага');
         this.x = this.tempx;
         this.y = this.tempy;
         this.z = this.tempz;
@@ -149,11 +150,13 @@ export default class Character
         let cell_z = Math.ceil(Math.abs(this.z) / this.world.cellWidth);
         this.cell_x = cell_x;
         this.cell_z = cell_z;
+        // тут вот рили нужное
         this.sprite.depth = this.scene.iso.calculateDepth(cell_x, 0, cell_z) + 1;
         this.sprite.x = temp[0];
         this.sprite.y = temp[1] + 50;
     }
 
+    // по-сути тут только остановка персонажа задается, а ну и промежуточные координаты да
     moveCharacter()
     {
         if (this.moving) {
@@ -174,11 +177,6 @@ export default class Character
                 this.tempx = ex;
                 this.tempz = ez;
             }
-            // this.scene.socket.emit('move-player', {
-            //     x: this.tempx,
-            //     z: this.tempz,
-            //     y: this.tempy
-            // })
         }
     }
 
@@ -187,21 +185,15 @@ export default class Character
         let x, y;
         x = pointer.x - 350;
         y = pointer.y - 220;
-        //y = pointer.y - 217;
-        //console.log('screen x = ' + x + ' y = ' +y);
         let temp = this.scene.iso.mapToIsoWorld(x, y);
         let xm = temp[0];
         let zm = temp[1];
         let checkZone = 0;
-        //console.log('iso xm = ' + xm + ' zm = ' +zm);
         let x_tile = Math.ceil((xm + checkZone)/this.world.cellWidth);
         let z_tile = Math.ceil(Math.abs(zm + checkZone)/this.world.cellWidth);
-        //console.log(this.world.length);
-        if (xm>=0 && xm <= this.world.width && zm >= this.world.length && zm<=0 ) {
-            console.log('x_tile = ' + x_tile + ' z_tile = ' + z_tile);
-        }
 
-        if (/*!this.moving &&*/ xm>=0 && xm <= this.world.width && zm >= this.world.length && zm<=0 ) {
+        // вычисляем направление анимации
+        if (xm>=0 && xm <= this.world.width && zm >= this.world.length && zm<=0 ) {
             let x = this.x;
             let z = this.z;
             this.startx = x;
@@ -264,7 +256,6 @@ export default class Character
 
     update()
     {
-        console.log('id '+ this.id);
         if(this.moving) {
             this.moveCharacter();
             this.positionCharacter();
