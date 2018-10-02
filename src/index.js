@@ -41,11 +41,8 @@ class MainScene extends Phaser.Scene {
         };
 
         this.iso = null;
-
         this.tiles = null;
-
         this.astar = null;
-
     }
 
     preload () {
@@ -67,51 +64,32 @@ class MainScene extends Phaser.Scene {
         this.astar = new AStar();
 
         this.buildFloor();
-        this.char = new Character(this, this.socket.id);
+        this.char = new Character(this);
 
         this.input.on('pointerdown', (pointer) => {
             // this.char.sprite.destroy();
             // this.socket.emit('move-to', {x: pointer.x, y: pointer.y});
-            this.socket.emit('run-player', this.char.getState());
+            this.socket.emit('clientRequest_playerUpdate', this.char.getState());
             // console.log(2);
             this.char.moveToPointer(pointer);
         });
 
+        this.socket.emit('clientRequest_playerConnect', this.char.getState());
 
         this.listener();
         //this.skeletons.push(this.add.existing(new Skeleton(this, 460, 180, 'walk', 'southWest', 1000)));
     }
 
     update () {
-        if (this.keyUp.isDown) {
-            this.dir = 'up';
-        } else if (this.keyDown.isDown) {
-            this.dir = 'down';
-        } else if (this.keyLeft.isDown) {
-            this.dir = 'left';
-        } else if (this.keyRight.isDown) {
-            this.dir = 'right';
-        } else {
-            this.dir = null;
-        }
-
         for(let id in this.skeletons) {
-            // let state = this.charsData[id];
-            // if(state) {
-            //     console.log('хуй');
-            //     console.log(this.charsData);
-            //     this.skeletons[id].setState(state);
-            // }
-            this.skeletons[id].update();
+            if(this.char.uid !== id) {
+                console.log('update =' + id);
+                this.skeletons[id].update();
+            }
         }
-
-        if (this.char.moving) {
-            this.char.moveCharacter();
-            // this.char.detectObjects();
-            this.char.positionCharacter();
-        }
-
-        //this.walk();
+        this.char.tempx += 1;
+        this.char.tempz += 1;
+        this.char.update();
     }
 
     buildFloor () {
@@ -183,80 +161,31 @@ class MainScene extends Phaser.Scene {
         }
     }
 
-    // createChars()
-    // {
-    //     for(id in this.charsData) {
-    //         this.skeletons[id] = new Character(this, id);
-    //     }
-    // }
     listener() {
-        this.socket.emit('new-player',{x:this.char.sprite.x,y:this.char.sprite.y,angle:this.char.sprite.rotation,type:1});
-
-        this.socket.on('create-chars',(players_data) => {
-            this.charsData = players_data;
-            for(let id in this.charsData) {
-                if(!this.charsData.hasOwnProperty(id)) {
-                    return false;
-                }
-                this.skeletons[id] = new Character(this, id);
-            }
+        this.socket.on('serverResponse_playerConnect_success', () => {
+            console.log('connected to the server');
         });
-        this.socket.on('connect-player',(id) => {
-            if(id === this.char.id) {
+
+        this.socket.on('serverRequest_networkPlayersUpdate',(state) => {
+            console.log('serverRequest_networkPlayersUpdate');
+            console.log('state uid id = ' + state.uid);
+            console.log('state socket id = ' + state.socketId);
+            if(state && state.uid && state.uid !== this.char.uid) {
+                if(!this.skeletons[state.uid]) {
+                    console.log('new network player connected');
+                    this.skeletons[state.uid] = new Character(this);
+                }
+                this.skeletons[state.uid].setState(state);
+            } else {
                 return false;
             }
-            this.skeletons[id] = new Character(this, id);
         });
-        this.socket.on('disconnect-player',(id) => {
-            console.log(this.charsData);
-            delete this.charsData[id];
+
+        this.socket.on('serverResponse_playerDisconnected',(id) => {
             this.skeletons[id].sprite.destroy();
             delete this.skeletons[id];
-            console.log(this.charsData);
+            // console.log(this.charsData);
         });
-        this.socket.on('update-players',(players_data) => {
-            this.charsData = players_data;
-        });
-
-        this.socket.on('move-player',(data) => {
-            if(data.id === this.char.id) {
-                return false;
-            }
-            let char = this.skeletons[data.id];
-            char.moveToPointer(data);
-        });
-        // Listen for other players connecting
-        // socket.on('update-players',function(players_data) {
-        //     var players_found = {};
-        //     // Loop over all the player data received
-        //     for(var id in players_data){
-        //         // If the player hasn't been created yet
-        //         if(other_players[id] == undefined && id != socket.id){ // Make sure you don't create yourself
-        //             var data = players_data[id];
-        //             var p = CreateShip(data.type,data.x,data.y,data.angle);
-        //             other_players[id] = p;
-        //             console.log("Created new player at (" + data.x + ", " + data.y + ")");
-        //         }
-        //         players_found[id] = true;
-        //
-        //         // Update positions of other players
-        //         if(id != socket.id){
-        //             other_players[id].target_x  = players_data[id].x; // Update target, not actual position, so we can interpolate
-        //             other_players[id].target_y  = players_data[id].y;
-        //             other_players[id].target_rotation  = players_data[id].angle;
-        //         }
-        //
-        //
-        //     }
-        //     // Check if a player is missing and delete them
-        //     for(var id in other_players){
-        //         if(!players_found[id]){
-        //             other_players[id].destroy();
-        //             delete other_players[id];
-        //         }
-        //     }
-        //
-        // })
     }
 }
 
@@ -266,8 +195,7 @@ let config = {
     width: 800,
     height: 600,
     backgroundColor: '#ababab',
-    scene: [ MainScene ],
-    //antialias: false
+    scene: [ MainScene ]
 };
 
 let game = new Phaser.Game(config);
