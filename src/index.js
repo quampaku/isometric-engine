@@ -194,7 +194,7 @@ class MainScene extends Phaser.Scene {
 
         this.socket.on('create-chars',(players_data) => {
             this.charsData = players_data;
-            for(id in this.charsData) {
+            for(let id in this.charsData) {
                 if(!this.charsData.hasOwnProperty(id)) {
                     return false;
                 }
