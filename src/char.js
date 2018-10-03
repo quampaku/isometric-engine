@@ -124,7 +124,7 @@ export default class Char {
     }
     update()
     {
-        console.log(this.getCurrAnimationKey());
+        // console.log(this.getCurrAnimationKey());
         this.updateAnimationPlay(this.getCurrAnimationKey());
         if(this.state.isMoving) {
             this.updatePosition(this.sprite.x-1, this.sprite.y+1, 1)
