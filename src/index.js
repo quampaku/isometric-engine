@@ -74,13 +74,17 @@ class MainScene extends Phaser.Scene {
         // this.char = new Character(this, this.socket.id);
         this.char = new Char(this, this.socket.id);
         //
-        // this.input.on('pointerdown', (pointer) => {
-        //     // this.char.sprite.destroy();
-        //     // this.socket.emit('move-to', {x: pointer.x, y: pointer.y});
-        //     this.socket.emit('run-player', this.char.getState());
-        //     // console.log(2);
-        //     this.char.moveToPointer(pointer);
-        // });
+        this.input.on('pointerdown', (pointer) => {
+            // this.char.state.isMoving = true;
+            this.char.state.currAnimationName = 'idle';
+            this.char.setDirectionToPointer(pointer);
+            console.log('жмяк');
+            // this.char.sprite.destroy();
+            // this.socket.emit('move-to', {x: pointer.x, y: pointer.y});
+            // this.socket.emit('run-player', this.char.getState());
+            // console.log(2);
+            // this.char.moveToPointer(pointer);
+        });
         //
         //
         // this.listener();
@@ -100,6 +104,7 @@ class MainScene extends Phaser.Scene {
             this.dir = null;
         }
 
+        this.char.update();
         // for(let id in this.skeletons) {
         //     // let state = this.charsData[id];
         //     // if(state) {
