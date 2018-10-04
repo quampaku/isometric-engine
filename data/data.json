@@ -29,66 +29,66 @@
     }
   },
   "directions": {
-    "southEast": {
+    "west": {
       "lineNumber": 1,
       "offset": 160,
       "x": 2,
       "y": 1,
-      "name": "southEast",
+      "name": "west",
       "opposite": "northWest"
     },
-    "east": {
+    "northWest": {
       "lineNumber": 2,
       "offset": 128,
       "x": 2,
       "y": 0,
-      "name": "east",
+      "name": "northWest",
       "opposite": "west"
     },
-    "northEast": {
+    "north": {
       "lineNumber": 3,
       "offset": 96,
       "x": 2, "y": -1,
-      "name": "northEast",
+      "name": "north",
       "opposite": "southWest"
     },
-    "north": {
+    "northEast": {
       "lineNumber": 4,
       "offset": 64,
       "x": -1,
       "y": 2,
-      "name": "north",
+      "name": "northEast",
       "opposite": "south"
     },
-    "northWest": {
+    "east": {
       "lineNumber": 5,
       "offset": 32,
       "x": -2,
       "y": -1,
-      "name": "northWest",
+      "name": "east",
       "opposite": "southEast"
     },
-    "west": {
+    "southEast": {
       "lineNumber": 6,
       "offset": 0,
       "x": -2,
       "y": 0,
-      "name": "west",
+      "name": "southEast",
       "opposite": "east"
     },
-    "southWest": {
+    "south": {
       "lineNumber": 7,
       "offset": 224,
       "x": -2,
       "y": 1,
-      "name": "southWest",
+      "name": "south",
       "opposite": "northEast" },
-    "south": {
+    "southWest": {
       "lineNumber": 8,
       "offset": 192,
       "x": 2,
       "y": -1,
-      "name": "south",
+      "name": "southWest",
       "opposite": "north"
     }
   }

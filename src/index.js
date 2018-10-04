@@ -78,7 +78,7 @@ class MainScene extends Phaser.Scene {
             // this.char.state.isMoving = true;
             this.char.state.currAnimationName = 'idle';
             this.char.setDirectionToPointer(pointer);
-            console.log('жмяк');
+            console.log(this.char.state.currDirectionName);
             // this.char.sprite.destroy();
             // this.socket.emit('move-to', {x: pointer.x, y: pointer.y});
             // this.socket.emit('run-player', this.char.getState());

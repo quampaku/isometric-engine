@@ -85,24 +85,30 @@ export default class Char {
     }
     calculateDirection(pointer, currX, currY)
     {
-        let temp = this.scene.iso.mapToIsoWorld(pointer.x - 350, pointer.y - 220);
+        let temp = this.scene.iso.mapToIsoWorld(pointer.x, pointer.y);
         let xm = temp[0];
         let zm = temp[1];
-        let angleSpan = 360/8;
-        let angle = Math.atan2(zm-currY, xm-currX);
-        let realAngle = angle*180/Math.PI;
-        realAngle += angleSpan/2;
-        if (realAngle<0) {
+        let angle = Phaser.Math.Angle.Between(currX, currY, pointer.x - 350, pointer.y - 220);
+        let realAngle = Math.ceil(angle*57.2958)
+        if (realAngle<=0) {
             realAngle += 360;
         }
-        let lineNumb = Math.ceil(realAngle/angleSpan);
+        let angleSpan = 360/8;
 
-        for (let i in this.directions) {
-            if(this.directions[i].lineNumber === lineNumb) {
-                return this.directions[i].name;
-            }
-        }
-        return null;
+        let costyl = {
+            1: 'east',
+            2: 'southEast',
+            3: 'south',
+            4: 'southWest',
+            5: 'west',
+            6: 'northWest',
+            7: 'north',
+            8: 'northEast',
+        };
+        let lineNumb = Math.ceil(realAngle/angleSpan);
+        let key = costyl[lineNumb];
+        console.log(lineNumb);
+        return this.directions[key].name;
     }
     calculatePosition(x,y)
     {
@@ -124,7 +130,7 @@ export default class Char {
     }
     update()
     {
-        console.log(this.getCurrAnimationKey());
+        // console.log(this.getCurrAnimationKey());
         this.updateAnimationPlay(this.getCurrAnimationKey());
         if(this.state.isMoving) {
             this.updatePosition(this.sprite.x-1, this.sprite.y+1, 1)
