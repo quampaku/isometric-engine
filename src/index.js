@@ -15,17 +15,6 @@ class MainScene extends Phaser.Scene {
         this.charsData = {};
         this.socket = io.connect('http://localhost:5000');
 
-        this.directions = {
-            1: { offset: 160, x: 2, y: 1,name: 'southEast', opposite: 'northWest' },
-            2: { offset: 128, x: 2, y: 0, name: 'east', opposite: 'west' },
-            3: { offset: 96, x: 2, y: -1, name: 'northEast', opposite: 'southWest' },
-            4: { offset: 64, x: -1, y: 2, name: 'north', opposite: 'south' },
-            5: { offset: 32, x: -2, y: -1, name: 'northWest', opposite: 'southEast' },
-            6: { offset: 0, x: -2, y: 0, name: 'west', opposite: 'east' },
-            7: { offset: 224, x: -2, y: 1, name: 'southWest', opposite: 'northEast' },
-            8: { offset: 192, x: 2, y: -1, name: 'south', opposite: 'north' },
-        };
-
         this.world = {
             maxx: 0,
             maxz: 0,
@@ -75,8 +64,9 @@ class MainScene extends Phaser.Scene {
 
         this.input.on('pointerdown', (pointer) => {
             this.char.state.currAnimationName = 'idle';
+            this.char.setMoveTo(pointer);
             this.char.setDirectionToPointer(pointer);
-            console.log(this.char.state.currDirectionName);
+            // console.log(this.char.state.currDirectionName);
             this.socket.emit('clientRequest_playerUpdate', this.char.getState());
         });
 
@@ -96,7 +86,7 @@ class MainScene extends Phaser.Scene {
             this.dir = null;
         }
 
-        this.char.update();
+        this.char.updateChar();
         // for(let id in this.skeletons) {
         //     // let state = this.charsData[id];
         //     // if(state) {
@@ -120,9 +110,6 @@ class MainScene extends Phaser.Scene {
                 this.skeletons[id].update();
             }
         }
-        this.char.tempx += 1;
-        this.char.tempz += 1;
-        this.char.update();
 
     }
 
