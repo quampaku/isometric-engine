@@ -1,10 +1,11 @@
 export default class Char {
 
-    constructor(scene, id) {
+    constructor(scene) {
         this.scene = scene;
         this.world = scene.world;
 
-        this.id = id;
+        this.uid = this.generateUid();
+        this.socketId = null;
 
         this.defaultAnimationName = 'idle';
         this.defaultDirectionName = 'southEast';
@@ -136,6 +137,24 @@ export default class Char {
             this.updatePosition(this.sprite.x-1, this.sprite.y+1, 1)
         }
 
+    }
+
+    generateUid () {
+        return Math.random().toString(36).substr(2, 16);
+    }
+
+    getState() {
+        return {
+            uid: this.uid,
+            socketId: this.socketId,
+            state: this.state
+        }
+    }
+
+    setState(state)
+    {
+        this.socketId = state.socketId;
+        this.state = state.state;
     }
 
 }
