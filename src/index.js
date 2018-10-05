@@ -13,7 +13,7 @@ class MainScene extends Phaser.Scene {
         this.scene = this;
         this.skeletons = {};
         this.charsData = {};
-        this.socket = io.connect('http://localhost:5000');
+        this.socket = null;
 
         this.world = {
             maxx: 0,
@@ -41,12 +41,16 @@ class MainScene extends Phaser.Scene {
     preload () {
         this.load.json('map', 'assets/isometric-grass-and-water-sm.json');
         this.load.json('data', 'data/data.json');
+        this.load.json('config', 'config.json');
         this.load.spritesheet('tiles', 'assets/isometric-grass-and-water.png', { frameWidth: 64, frameHeight: 64});
         this.load.spritesheet('skeleton', 'assets/skeleton8.png', { frameWidth: 128, frameHeight: 128 });
     }
 
     create () {
         this.data = this.cache.json.get('data');
+        this.config = this.cache.json.get('config');
+        this.socket = io.connect(this.config.serverAddress);
+
         this.keyUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         this.keyDown = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
         this.keyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);

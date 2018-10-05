@@ -5,4 +5,5 @@ required:
 ---
 install:
 1. npm install
-2. npm start
+2. create /config.json
+3. npm start
