@@ -32,7 +32,7 @@ export default class Player {
         this.moveData.moveSpeed = this._calculateMoveSpeed(pointer);
     }
 
-    updateChar() {
+    update() {
         let pointer = this.moveData.pointer;
         if(pointer) {
             this.char.state.position.x += this.moveData.moveSpeed.x;

@@ -93,27 +93,10 @@ class MainScene extends Phaser.Scene {
             this.dir = null;
         }
 
-        this.player.updateChar();
-        // for(let id in this.skeletons) {
-        //     // let state = this.charsData[id];
-        //     // if(state) {
-        //     //     console.log('хуй');
-        //     //     console.log(this.charsData);
-        //     //     this.skeletons[id].setState(state);
-        //     // }
-        //     this.skeletons[id].update();
-        // }
-        //
-        // if (this.char.moving) {
-        //     this.char.moveCharacter();
-        //     // this.char.detectObjects();
-        //     this.char.positionCharacter();
-        // }
+        this.player.update();
 
-        //this.walk();
         for(let id in this.skeletons) {
             if(this.player.uid !== id) {
-                // console.log('update =' + id);
                 this.skeletons[id].update();
             }
         }
