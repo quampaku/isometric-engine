@@ -60,7 +60,7 @@ export default class Char {
     _init() {
         this.state.currAnimationName = this.defaultAnimationName;
         this.state.currDirectionName = this.defaultDirectionName;
-        this.sprite = this.scene.add.sprite(0, 0, 'skeleton', 0).setOrigin(0.5, 1);
+        this.sprite = this.scene.add.sprite(0, 0, 'skeleton', 0);
         this.scene.tiles.add(this.sprite);
 
         this._initAnimations();
