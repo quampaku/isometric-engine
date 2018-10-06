@@ -40,10 +40,11 @@ class MainScene extends Phaser.Scene {
     }
 
     preload () {
-        this.load.json('map', 'assets/isometric-grass-and-water-sm.json');
+        this.load.json('map', 'assets/loc1.json');
         this.load.json('data', 'data/data.json');
         this.load.json('config', 'config.json');
-        this.load.spritesheet('tiles', 'assets/isometric-grass-and-water.png', { frameWidth: 64, frameHeight: 64});
+        this.load.spritesheet('tiles', 'assets/grassland.png', { frameWidth: 64, frameHeight: 128});
+        this.load.spritesheet('trees', 'assets/grassland.png', { frameWidth: 128, frameHeight: 256});
         this.load.spritesheet('skeleton', 'assets/skeleton8.png', { frameWidth: 128, frameHeight: 128 });
     }
 
@@ -105,6 +106,7 @@ class MainScene extends Phaser.Scene {
 
     buildFloor () {
         let data =  this.cache.json.get('map');
+        let tileset = data.tilesets[0];
         let tileWidth = data.tilewidth;
         let tileHeight = data.tileheight;
         this.tileWidthHalf = tileWidth/2;
@@ -112,8 +114,6 @@ class MainScene extends Phaser.Scene {
         let layer = data.layers[0].data;
         let mapWidth = data.layers[0].width;
         let mapHeight = data.layers[0].height;
-        let centerX = mapWidth * this.tileWidthHalf;
-        let centerY = 16;
 
         this.world.maxx = mapWidth;
         this.world.maxz = mapHeight;
@@ -128,23 +128,23 @@ class MainScene extends Phaser.Scene {
         this.iso = new Isometric(mapWidth, mapHeight);
         let k = 0;
         let y = 0;
-        for(let j = 1; j <= mapHeight; j++) {
+        for(let j = 1; j <= mapHeight; j++, k++) {
             for(let i = 1; i <= mapWidth; i++) {
-                let id = layer[k] - 1;
+                if(layer[k] <= 0) {
+                    continue;
+                }
+                let id = layer[k] - tileset.firstgid;
                 let x = (i-1) * this.world.cellWidth;
                 let z = -(j-1) * this.world.cellWidth;
                 let depth = this.iso.calculateDepth(i, y, j);
                 let temp = this.iso.mapToScreen(x, y, z);
-                //console.log(temp);
-                let tile = this.add.image(temp[0], temp[1], 'tiles', id).setOrigin(0.5, 0);
+                let tile = this.add.image(temp[0], temp[1], 'tiles', id);
                 tile.depth = depth;
-                //tile.setInteractive();
                 this.tiles.add(tile);
-                k++;
-                if(j === 1) {
+                /*if(j === 1) {
                     this.world.tiles[i] = [];
                 }
-                this.world.tiles[i][j] = {x:i, y:y, z:j, depth:depth};
+                this.world.tiles[i][j] = {x:i, y:y, z:j, depth:depth};*/
             }
         }
     }
@@ -161,7 +161,6 @@ class MainScene extends Phaser.Scene {
             x_tile = Math.ceil(x/this.world.cellWidth);
             z_tile = Math.ceil(z/this.world.cellWidth);
             let depth = this.world.tiles[x_tile][z_tile].depth+1;
-            //console.log(depth);
             this.world.char.sprite.depth = depth;
         } else {
             this.world.char.tempx = this.world.char.x;
