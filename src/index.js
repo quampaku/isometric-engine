@@ -5,6 +5,7 @@ import AStar from './astar';
 import AnimationLoader from './animation_loader';
 import Character from './character';
 import Char from './char';
+import SelfChar from './self_char';
 
 class MainScene extends Phaser.Scene {
     constructor () {
@@ -65,12 +66,12 @@ class MainScene extends Phaser.Scene {
         this.astar = new AStar();
 
         this.buildFloor();
-        this.char = new Char(this, this.socket.id);
+        this.char = new SelfChar(this);
 
         this.socket.emit('clientRequest_playerConnect', this.char.getState());
 
         this.input.on('pointerdown', (pointer) => {
-            this.char.state.currAnimationName = 'idle';
+            // this.char.state.currAnimationName = 'idle';
             this.char.setMoveTo(pointer);
             this.char.setDirectionToPointer(pointer);
             // console.log(this.char.state.currDirectionName);
