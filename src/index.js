@@ -3,9 +3,8 @@ import io from 'socket.io-client';
 import Isometric from './isometric';
 import AStar from './astar';
 import AnimationLoader from './animation_loader';
-import Character from './character';
 import Char from './char';
-import SelfChar from './self_char';
+import Player from './player';
 
 class MainScene extends Phaser.Scene {
     constructor () {
@@ -66,16 +65,16 @@ class MainScene extends Phaser.Scene {
         this.astar = new AStar();
 
         this.buildFloor();
-        this.char = new SelfChar(this);
+        this.player = new Player(this);
 
-        this.socket.emit('clientRequest_playerConnect', this.char.getState());
+        this.socket.emit('clientRequest_playerConnect', this.player.getState());
 
         this.input.on('pointerdown', (pointer) => {
             // this.char.state.currAnimationName = 'idle';
-            this.char.setMoveTo(pointer);
-            this.char.setDirectionToPointer(pointer);
+            this.player.setMoveTo(pointer);
+            this.player.setDirectionToPointer(pointer);
             // console.log(this.char.state.currDirectionName);
-            this.socket.emit('clientRequest_playerUpdate', this.char.getState());
+            this.socket.emit('clientRequest_playerUpdate', this.player.getState());
         });
 
         this.listener();
@@ -94,7 +93,7 @@ class MainScene extends Phaser.Scene {
             this.dir = null;
         }
 
-        this.char.updateChar();
+        this.player.updateChar();
         // for(let id in this.skeletons) {
         //     // let state = this.charsData[id];
         //     // if(state) {
@@ -113,7 +112,7 @@ class MainScene extends Phaser.Scene {
 
         //this.walk();
         for(let id in this.skeletons) {
-            if(this.char.uid !== id) {
+            if(this.player.uid !== id) {
                 // console.log('update =' + id);
                 this.skeletons[id].update();
             }
@@ -194,7 +193,7 @@ class MainScene extends Phaser.Scene {
         // ты законнектился на сервак
         this.socket.on('serverResponse_playerConnect_success', (charList) => {
             for(let uid in charList) {
-                if(uid !== this.char.uid) {
+                if(uid !== this.player.uid) {
                     let state = charList[uid];
                     this.skeletons[uid] = new Char(this);
                     this.skeletons[uid].setState(state);
@@ -208,7 +207,7 @@ class MainScene extends Phaser.Scene {
             // console.log('serverRequest_networkPlayersUpdate');
             // console.log('state uid id = ' + state.uid);
             // console.log('state socket id = ' + state.socketId);
-            if(state && state.uid && state.uid !== this.char.uid) {
+            if(state && state.uid && state.uid !== this.player.uid) {
                 if(!this.skeletons[state.uid]) {
                     console.log('new network player connected');
                     this.skeletons[state.uid] = new Char(this);

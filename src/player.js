@@ -1,6 +1,6 @@
 import Char from './char';
 
-export default class SelfChar {
+export default class Player {
 
     constructor(scene) {
         this.baseSpeed = 1;
