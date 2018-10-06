@@ -1,30 +1,38 @@
 {
   "animations": {
-    "character": {
-      "idle": {
-        "startFrame": 0,
-        "endFrame": 3,
-        "speed": 0.2
-      },
-      "walk": {
-        "startFrame": 4,
-        "endFrame": 11,
-        "speed": 0.09
-      },
-      "attack": {
-        "startFrame": 12,
-        "endFrame": 19,
-        "speed": 0.11
-      },
-      "die": {
-        "startFrame": 20,
-        "endFrame": 27,
-        "speed": 0.2
-      },
-      "shoot": {
-        "startFrame": 28,
-        "endFrame": 31,
-        "speed": 0.1
+    "skeleton": {
+      "resourceName": "skeleton",
+      "data": {
+        "idle": {
+          "startFrame": 0,
+          "endFrame": 3,
+          "frameRate": 6,
+          "repeat": -1
+        },
+        "walk": {
+          "startFrame": 4,
+          "endFrame": 11,
+          "frameRate": 6,
+          "repeat": -1
+        },
+        "attack": {
+          "startFrame": 12,
+          "endFrame": 19,
+          "frameRate": 10,
+          "repeat": -1
+        },
+        "die": {
+          "startFrame": 20,
+          "endFrame": 27,
+          "frameRate": 6,
+          "repeat": 0
+        },
+        "shoot": {
+          "startFrame": 28,
+          "endFrame": 31,
+          "frameRate": 6,
+          "repeat": -1
+        }
       }
     }
   },

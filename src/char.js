@@ -25,6 +25,7 @@ export default class Char {
             isMoving: false,
             currDirectionName: null,
             currAnimationName: null,
+            depth: 0,
             position: {
                 x: 0,
                 y: 0,
@@ -35,7 +36,7 @@ export default class Char {
 
         this.directions = this.scene.data.directions;
 
-        this.animations = this.scene.data.animations.character;
+        this.animations = this.scene.data.animations.skeleton.data;
 
         this.init();
     }
@@ -53,27 +54,10 @@ export default class Char {
     }
 
     initAnimations() {
-        for (let animationName in this.animations) {
-            let animationData = this.animations[animationName];
-            for (let directionName in this.directions) {
-                let directionData = this.directions[directionName];
-                let animationKey = animationName + '-' + directionName;
-                let startFrame = animationData.startFrame +(32 * (directionData.lineNumber-1));
-                let endFrame = animationData.endFrame +(32 * (directionData.lineNumber-1));
-                let config = {
-                    key: animationKey,
-                    frames: this.scene.anims.generateFrameNumbers('skeleton', {
-                        prefix: animationKey,
-                        start: startFrame,
-                        end: endFrame
-                    }),
-                    frameRate: 6,
-                    repeat: -1
-                };
-                this.scene.anims.create(config);
-                this.sprite.anims.load(animationKey);
-            }
-        }
+        let animationCollection = this.scene.animationLoader.getCollection()['skeleton'];
+        animationCollection.forEach((animationKey) => {
+            this.sprite.anims.load(animationKey);
+        });
     }
 
     getCurrAnimationKey() {
@@ -87,7 +71,7 @@ export default class Char {
     }
     _calculateDirection(pointer, currX, currY) {
         let angle = this._calculateAngle(pointer, currX, currY);
-        let realAngle = Math.ceil(angle*57.2958)
+        let realAngle = Math.ceil(angle*57.2958);
         if (realAngle<=0) {
             realAngle += 360;
         }
@@ -118,6 +102,13 @@ export default class Char {
         return angle;
     }
 
+    _calculateDepth(x, z) {
+        let cell_x = Math.ceil(x / this.world.cellWidth);
+        let cell_z = Math.ceil(Math.abs(z) / this.world.cellWidth);
+
+        return this.scene.iso.calculateDepth(cell_x, 0, cell_z) + 1;
+    }
+
     updateAnimationPlay(currKey) {
         if(this.sprite.anims.getCurrentKey() !== currKey) {
             this.sprite.anims.play(currKey);
@@ -125,7 +116,7 @@ export default class Char {
     }
 
     updatePosition(x, y, depth) {
-        this.sprite.depth = depth + 1;
+        this.sprite.depth = depth;
         this.sprite.x = x;
         this.sprite.y = y;
     }
@@ -134,7 +125,7 @@ export default class Char {
         // console.log(this.getCurrAnimationKey());
         this.updateAnimationPlay(this.getCurrAnimationKey());
         if(this.state.isMoving) {
-            this.updatePosition(this.state.position.x, this.state.position.y, 1)
+            this.updatePosition(this.state.position.x, this.state.position.y, this.state.depth)
         }
     }
 
@@ -162,19 +153,24 @@ export default class Char {
     updateChar() {
         let pointer = this.moveData.pointer;
         if(pointer) {
-            this.state.position.x = this.state.position.x + this.moveData.moveSpeed.x;
-            this.state.position.y = this.state.position.y + this.moveData.moveSpeed.y;
-            this.state.position.z = this.state.position.z + this.moveData.moveSpeed.z;
+            this.state.position.x += this.moveData.moveSpeed.x;
+            this.state.position.y += this.moveData.moveSpeed.y;
+            this.state.position.z += this.moveData.moveSpeed.z;
+            this.state.depth = this._calculateDepth(this.state.position.x, this.state.position.y);
             if(pointer.x === this.state.position.x &&
                 pointer.y === this.state.position.z) {
-                this.state.currAnimationName = 'idle';
-                this.moveData.pointer = null;
+                this.stopMoving();
             }
             this.scene.socket.emit('clientRequest_playerUpdate', this.getState());
         }
         this.update();
     }
 
+    stopMoving() {
+        this.state.currAnimationName = 'idle';
+        this.moveData.pointer = null;
+        this.state.isMoving = false;
+    }
     generateUid () {
         return Math.random().toString(36).substr(2, 16);
     }

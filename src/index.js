@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import io from 'socket.io-client';
 import Isometric from './isometric';
 import AStar from './astar';
+import AnimationLoader from './animation_loader';
 import Character from './character';
 import Char from './char';
 
@@ -12,8 +13,8 @@ class MainScene extends Phaser.Scene {
         this.tileHeigthHalf = null;
         this.scene = this;
         this.skeletons = {};
-        this.charsData = {};
         this.socket = null;
+        this.animationLoader = null;
 
         this.world = {
             maxx: 0,
@@ -50,6 +51,8 @@ class MainScene extends Phaser.Scene {
         this.data = this.cache.json.get('data');
         this.config = this.cache.json.get('config');
         this.socket = io.connect(this.config.serverAddress);
+
+        this.animationLoader = new AnimationLoader(this);
 
         this.keyUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         this.keyDown = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
