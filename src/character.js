@@ -3,15 +3,16 @@ import Phaser from "phaser";
 export default class Character
 {
 
-    constructor (scene, id)
+    constructor (scene)
     {
         this.scene = scene;
         this.world = scene.world;
 
-        this.id = id;
+        this.socketId = null;
+        this.uid = this.generateUid();
         this.tempx = 32;
         this.tempy =  0;
-        this.tempz = 32;
+        this.tempz = -32;
         this.speed = 1;
         this.feeler = 10;
         this.width = 10;
@@ -65,6 +66,10 @@ export default class Character
             }
         };
         this.buildCharacter();
+    }
+
+    generateUid () {
+        return Math.random().toString(36).substr(2, 16);
     }
 
     changeFrame ()
@@ -222,9 +227,10 @@ export default class Character
         }
     }
 
-    getState()
-    {
+    getState() {
         return {
+            uid: this.uid,
+            socketId: this.socketId,
             moving: this.moving,
             direction: this.direction,
             x: this.x,
@@ -232,15 +238,17 @@ export default class Character
             y: this.y,
             xmov: this.xmov,
             zmov: this.zmov,
-            feelerx: this.feelerx,
-            feelerz: this.feelerz,
             motion: this.motion,
-            anim: this.anim
+            anim: this.anim,
+            tempx: this.tempx,
+            tempy: this.tempy,
+            tempz: this.tempz
         }
     }
 
     setState(state)
     {
+        this.socketId = state.socketId;
         this.moving = state.moving;
         this.direction = state.direction;
         this.x = state.x;
@@ -248,10 +256,11 @@ export default class Character
         this.y = state.y;
         this.xmov = state.xmov;
         this.zmov = state.zmov;
-        this.feelerx = state.feelerx;
-        this.feelerz = state.feelerz;
         this.motion = state.motion;
         this.anim = state.anim;
+        this.tempx = state.tempx;
+        this.tempy = state.tempy;
+        this.tempz = state.tempz;
     }
 
     update()
