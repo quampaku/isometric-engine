@@ -73,7 +73,6 @@ class MainScene extends Phaser.Scene {
         this.input.on('pointerdown', (pointer) => {
             // this.char.state.currAnimationName = 'idle';
             this.player.setMoveTo(pointer);
-            this.player.setDirectionToPointer(pointer);
             // console.log(this.char.state.currDirectionName);
             this.socket.emit('clientRequest_playerUpdate', this.player.getState());
         });

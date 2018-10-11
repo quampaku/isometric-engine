@@ -17,30 +17,56 @@ export default class Player {
         this.scene = scene;
         this.char = new Char(scene);
         this.uid = this.char.uid;
+
+        let rect = new Phaser.Geom.Rectangle(-10, 20, 20, 20);
+
+        let graphics = this.scene.add.graphics();
+        // let cont = this.scene.add.container(this.char.sprite.width,this.char.sprite.height);
+        // cont.x = 300;
+        // cont.y = 300;
+        // cont.add(this.char.sprite);
+        graphics.fillRectShape(rect);
+        // this.scene.tiles.add(cont)
+        this.char.cont.add(graphics);
+        this.moveRect = rect;
     }
 
     setDirectionToPointer(pointer) {
-        let x = this.char.sprite.x;
-        let y = this.char.sprite.y;
+        let x = this.char.cont.x;
+        let y = this.char.cont.y;
         this.char.state.currDirectionName = this._calculateDirection(pointer,x,y);
     }
 
     setMoveTo(pointer) {
         this.char.state.currAnimationName = 'walk';
         this.char.state.isMoving = true;
-        this.moveData.pointer = pointer;
-        this.moveData.moveSpeed = this._calculateMoveSpeed(pointer);
+        this.moveData.pointer = this._modifyPointer(pointer);
+        this.moveData.moveSpeed = this._calculateMoveSpeed(this.moveData.pointer);
+        this.setDirectionToPointer(this.moveData.pointer);
     }
 
+    _modifyPointer(pointer) {
+        let mPointer = pointer;
+        mPointer.x -= 350;
+        mPointer.y -= 220;
+        let temp = this.scene.iso.mapToIsoWorld(mPointer.x, mPointer.y);
+        mPointer.isoX = temp[0];
+        mPointer.isoZ = temp[1];
+        console.log(mPointer);
+        setInterval(()=>{
+            console.log(this.char.state.position);
+        }, 1000);
+        return mPointer;
+
+    }
     update() {
         let pointer = this.moveData.pointer;
         if(pointer) {
             this.char.state.position.x += this.moveData.moveSpeed.x;
             this.char.state.position.y += this.moveData.moveSpeed.y;
-            this.char.state.position.z += this.moveData.moveSpeed.z;
             this.char.state.depth = this._calculateDepth(this.char.state.position.x, this.char.state.position.y);
-            if(pointer.x === this.char.state.position.x &&
-                pointer.y === this.char.state.position.z) {
+            console.log();
+            if (this.moveRect.contains(pointer.x,pointer.y)){
                 this.stopMoving();
             }
             this.char.scene.socket.emit('clientRequest_playerUpdate', this.char.getState());
@@ -103,7 +129,7 @@ export default class Player {
         let temp = this.scene.iso.mapToIsoWorld(pointer.x, pointer.y);
         let xm = temp[0];
         let zm = temp[1];
-        let angle = Phaser.Math.Angle.Between(currX, currY, pointer.x - 350, pointer.y - 220);
+        let angle = Phaser.Math.Angle.Between(currX, currY, pointer.x, pointer.y);
 
         return angle;
     }
@@ -115,5 +141,9 @@ export default class Player {
 
     setState(state) {
         this.char.setState(state);
+    }
+
+    myRound10(val) {
+        return Math.round(val / 10) * 10;
     }
 }

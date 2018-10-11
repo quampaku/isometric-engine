@@ -61,7 +61,9 @@ export default class Char {
         this.state.currAnimationName = this.defaultAnimationName;
         this.state.currDirectionName = this.defaultDirectionName;
         this.sprite = this.scene.add.sprite(0, 0, 'skeleton', 0);
-        this.scene.tiles.add(this.sprite);
+        this.cont = this.scene.add.container(this.sprite.x,this.sprite.y);
+        this.cont.add(this.sprite);
+        this.scene.tiles.add(this.cont);
 
         this._initAnimations();
 
@@ -87,8 +89,8 @@ export default class Char {
 
     _updatePosition(x, y, depth) {
         this.sprite.depth = depth;
-        this.sprite.x = x;
-        this.sprite.y = y;
+        this.cont.x = x;
+        this.cont.y = y;
     }
 
 }
