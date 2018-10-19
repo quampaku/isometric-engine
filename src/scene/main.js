@@ -14,11 +14,17 @@ export default class MainScene extends Phaser.Scene {
     }
 
     create() {
-        this.scene.switch('basicLocationScene');
-        console.log(this);
-        // this.scene.start('basicLocationScene');
+        let clickCount = 0;
+        this.clickCountText = this.add.text(100, 200, '');
+
+        this.clickButton = this.add.text(340, 280, 'Начать игру', { fill: '#0f0' })
+            .setInteractive()
+            .on('pointerdown', () => this.startScene() );
     }
 
+    startScene(){
+        this.scene.switch('basicLocationScene');
+    }
     update() {
 
     }
