@@ -40,12 +40,7 @@ export default class BasicLocationScene extends Phaser.Scene {
     }
 
     preload () {
-        this.load.json('map', 'assets/loc1.json');
-        this.load.json('data', 'data/data.json');
-        this.load.json('config', 'config.json');
-        this.load.spritesheet('tiles', 'assets/grassland.png', { frameWidth: 64, frameHeight: 128});
-        this.load.spritesheet('trees', 'assets/grassland.png', { frameWidth: 128, frameHeight: 256});
-        this.load.spritesheet('skeleton', 'assets/skeleton8.png', { frameWidth: 128, frameHeight: 128 });
+        
     }
 
     create () {
